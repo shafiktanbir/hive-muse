@@ -9,7 +9,7 @@ class PlaylistProvider extends ChangeNotifier {
   static const String _favStorageKey = 'hive_muse_favorites';
 
   List<Song> _allSongs = [];
-  List<Song> _userUploadedSongs = [];
+  final List<Song> _userUploadedSongs = [];
   String _selectedCategory = 'All';
   String _searchQuery = '';
   Set<String> _favoriteIds = {};
