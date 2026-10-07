@@ -1,4 +1,4 @@
-name: Flutter CI
+name: Flutter CI & Build Release
 
 on:
   push:
@@ -7,30 +7,56 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
-    name: Build & Test
+  analyze_and_test:
+    name: Run Analysis & Tests
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
 
-      - name: Install Dependencies
-        run: flutter pub get
+  build_android:
+    name: Build Android APK
+    needs: analyze_and_test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      - run: flutter pub get
+      - run: flutter build apk --release --no-tree-shake-icons
+      - name: Upload Android APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: HiveMuse-Android-APK
+          path: build/app/outputs/flutter-apk/app-release.apk
 
-      - name: Run Static Analysis
-        run: flutter analyze
-
-      - name: Run Unit & Widget Tests
-        run: flutter test
+  build_ios:
+    name: Build iOS (Apple) App
+    needs: analyze_and_test
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      - run: flutter pub get
+      - run: flutter build ios --release --no-codesign --no-tree-shake-icons
+      - name: Upload iOS App Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: HiveMuse-iOS-App
+          path: build/ios/iphoneos/
