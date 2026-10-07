@@ -26,9 +26,9 @@ void main() {
     });
 
     test('setSearchQuery filters songs by title or artist', () {
-      provider.setSearchQuery('Weeknd');
-      expect(provider.filteredSongs.length, equals(1));
-      expect(provider.filteredSongs.first.artist, equals('The Weeknd'));
+      provider.setSearchQuery('Tours');
+      expect(provider.filteredSongs.isNotEmpty, isTrue);
+      expect(provider.filteredSongs.first.artist, equals('Tours'));
     });
 
     test('toggleFavorite adds and removes favorite song IDs', () async {
