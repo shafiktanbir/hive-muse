@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.hive_muse"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
