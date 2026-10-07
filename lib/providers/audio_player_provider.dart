@@ -100,7 +100,11 @@ class AudioPlayerProvider extends ChangeNotifier {
       if (song.isLocalFile && song.bytes != null) {
         await _audioPlayer.play(BytesSource(song.bytes!));
       } else if (song.audioUrl.startsWith('assets/')) {
-        await _audioPlayer.play(AssetSource(song.audioUrl.replaceFirst('assets/', '')));
+        if (kIsWeb) {
+          await _audioPlayer.play(UrlSource('assets/${song.audioUrl}'));
+        } else {
+          await _audioPlayer.play(AssetSource(song.audioUrl.replaceFirst('assets/', '')));
+        }
       } else {
         await _audioPlayer.play(UrlSource(song.audioUrl));
       }
