@@ -60,3 +60,32 @@ jobs:
         with:
           name: HiveMuse-iOS-App
           path: build/ios/iphoneos/
+
+  create_release:
+    name: Publish GitHub Release
+    needs: [build_android, build_ios]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download Android Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: HiveMuse-Android-APK
+          path: release-artifacts/android
+      - name: Download iOS Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: HiveMuse-iOS-App
+          path: release-artifacts/ios
+      - name: Package Release Files
+        run: |
+          cd release-artifacts/ios && zip -r ../HiveMuse-iOS-RunnerApp.zip . && cd ../..
+          cp release-artifacts/android/app-release.apk release-artifacts/HiveMuse-Android-v1.0.0.apk
+      - name: Create or Update GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create v1.0.0 release-artifacts/HiveMuse-Android-v1.0.0.apk release-artifacts/HiveMuse-iOS-RunnerApp.zip --title "HiveMuse Release v1.0.0" --notes "Release build featuring HiveMuse Android APK (HiveMuse-Android-v1.0.0.apk) and Apple iOS App payload (HiveMuse-iOS-RunnerApp.zip)." --clobber
+
